@@ -57,7 +57,7 @@ const LeaveCalendar = () => {
   };
 
   return (
-    <div className="w-full min-h-screen p-6 rounded-xl bg-white text-black">
+    <div className="w-full h-full p-6 rounded-xl bg-white text-black">
       <div className="flex justify-between items-center mb-6">
         <button onClick={() => setCurrentMonth(currentMonth.subtract(1, 'month'))}
           className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 text-lg">

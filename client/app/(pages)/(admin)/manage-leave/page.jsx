@@ -1,7 +1,4 @@
-"use client"
-
-import { useState } from "react";
-import Link from "next/link";
+// "use client"
 import LeaveManagement from "@/app/components/(admin)/LeaveManagement";
 
 
@@ -16,7 +13,7 @@ export default function LeavePage() {
         <div className=" overflow-y-scroll">
           <LeaveManagement />
         </div>
-      </div>
+      </div> 
     </>
   );
 }
