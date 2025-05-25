@@ -5,68 +5,69 @@ const LeaveBalance = require('../models/LeaveBalance');
 
 // apply leave 
 exports.applyLeave = async (req, res) => {
-    try {
-      const { fromDate, toDate, employee, reason, type } = req.body; // if you want type, include it here
-  
-      // Validate required fields
-      if (!fromDate || !toDate || !employee || !reason) {
-        return res.status(400).json({ message: 'Missing required leave fields' });
-      }
-  
-      // Check if leave overlaps with UK holidays
-      let current = new Date(fromDate);
-      const end = new Date(toDate);
-      let holidayConflicts = [];
-  
-      while (current <= end) {
-        const dayStr = current.toISOString().slice(0, 10);
-        if (ukHolidays.includes(dayStr)) {
-          holidayConflicts.push(dayStr);
-        }
-        current.setDate(current.getDate() + 1);
-      }
-  
-      // Save the leave
-      const leaveData = {
-        employee,
-        fromDate,
-        toDate,
-        reason,
-        status: 'pending',
-      };
-  
-      // If you want to support 'type', add it in the schema and here
-      if (type) {
-        leaveData.type = type;
-      }
-  
-      const leave = new Leave(leaveData);
-      await leave.save();
-  
-      // Populate employee info for email (like name or email)
-      const populatedLeave = await leave.populate('employee', 'name email').execPopulate();
-  
-      const employeeInfo = populatedLeave.employee.name || populatedLeave.employee.email || populatedLeave.employee._id;
-  
-      // Send email to manager/admin
-      await sendEmail({
-        to: 'abdulark500@gmail.com',
-        subject: 'New Leave Application Submitted',
-        text: `A new leave has been applied by ${employeeInfo}.\n\nLeave Dates: ${new Date(leave.fromDate).toDateString()} to ${new Date(leave.toDate).toDateString()}\nReason: ${leave.reason}${leave.type ? `\nType: ${leave.type}` : ''}`
-      });
-  
-      // Prepare success message with holiday info
-      const message = holidayConflicts.length
-        ? `Leave submitted successfully. Note: These date(s) fall on UK holidays and won't count as leave: ${holidayConflicts.join(', ')}`
-        : 'Leave submitted successfully.';
-  
-      res.status(201).json({ message, leave: populatedLeave });
-  
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Error applying leave', error });
+  try {
+    const { fromDate, toDate, employee, reason, type } = req.body;
+
+    // Validate required fields
+    if (!fromDate || !toDate || !employee || !reason) {
+      return res.status(400).json({ message: 'Missing required leave fields' });
     }
-  };
+
+    // Check if leave overlaps with UK holidays
+    let current = new Date(fromDate);
+    const end = new Date(toDate);
+    let holidayConflicts = [];
+
+    while (current <= end) {
+      const dayStr = current.toISOString().slice(0, 10);
+      if (ukHolidays.includes(dayStr)) {
+        holidayConflicts.push(dayStr);
+      }
+      current.setDate(current.getDate() + 1);
+    }
+
+    // Save the leave
+    const leaveData = {
+      employee,
+      fromDate,
+      toDate,
+      reason,
+      status: 'pending',
+    };
+
+    if (type) {
+      leaveData.type = type;
+    }
+
+    const leave = new Leave(leaveData);
+    await leave.save();
+
+    // ✅ Populate employee info (Mongoose v6+ syntax)
+    await leave.populate('employee', 'name email');
+
+    const employeeInfo = leave.employee.name || leave.employee.email || leave.employee._id;
+
+    // Send email to manager/admin
+    await sendEmail({
+      to: 'abdulark500@gmail.com',
+      subject: 'New Leave Application Submitted',
+      text: `A new leave has been applied by ${employeeInfo}.\n\nLeave Dates: ${new Date(leave.fromDate).toDateString()} to ${new Date(leave.toDate).toDateString()}\nReason: ${leave.reason}${leave.type ? `\nType: ${leave.type}` : ''}`
+    });
+
+    // Success message with holiday info
+    const message = holidayConflicts.length
+      ? `Leave submitted successfully. Note: These date(s) fall on UK holidays and won't count as leave: ${holidayConflicts.join(', ')}`
+      : 'Leave submitted successfully.';
+
+    res.status(201).json({ message, leave });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error applying leave', error });
+  }
+};
+
+
 // Get My Leaves
 exports.getMyLeaves = async (req, res) => {
   try {

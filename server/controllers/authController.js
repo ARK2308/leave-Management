@@ -72,13 +72,4 @@ const loginUser = async (req, res) => {
 module.exports = { registerUser, loginUser };
 
 
-// const str = "hello world";
-// const reverseStr = str.split("").reverse().join("");
-// console.log(reverseStr); // Output: "dlrow olleh"
 
-const str = "test"
-const reverseStr = str.split("").reverse().join("");
-const isPalindrome = str === reverseStr;
-console.log(isPalindrome); 
-// Output: true
-// Output: false
