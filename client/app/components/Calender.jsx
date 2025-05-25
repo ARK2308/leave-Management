@@ -57,7 +57,7 @@ const LeaveCalendar = () => {
   };
 
   return (
-    <div className="w-full h-full p-6 rounded-xl bg-white text-black">
+    <div className="w-full  p-6 rounded-xl bg-white text-black">
       <div className="flex justify-between items-center mb-6">
         <button onClick={() => setCurrentMonth(currentMonth.subtract(1, 'month'))}
           className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 text-lg">
@@ -85,7 +85,7 @@ const LeaveCalendar = () => {
           return (
             <div
               key={idx}
-              className={`flex items-center justify-center h-20 text-xl font-semibold border rounded-lg transition-all duration-200
+              className={`flex items-center justify-center h-[4rem] text-xl font-semibold border rounded-lg transition-all duration-200
                 ${isCurrentMonth ? 'bg-white' : 'bg-gray-100 text-gray-400'}
                 ${statusClass}
               `}
